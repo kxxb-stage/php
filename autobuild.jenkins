@@ -16,7 +16,7 @@ pipeline {
         stage("Pull repositories") {
             steps {
 				script {
-					echo "/n Branch Name: $BRANCH_NAME /n"
+					echo "-------------========== Current Branch Name: $BRANCH_NAME =============--------------"
 					dir ('infra') {
 						git(
 						    url: 'git@github.com:kxxb-stage/infra.git',
@@ -24,28 +24,42 @@ pipeline {
 							branch: 'master'
 						)
 					}
-					echo " =========== Выкачана ветка master репозитория infra"		
+					echo " -------------========== Выкачана ветка master репозитория infra =============--------------"		
 					dir ('infra/ansible/roles/Add_context/files/php') {
 						git(
 						    url: 'git@github.com:kxxb-stage/php.git',
 							credentialsId: 'kxxb_git',
-							branch: '${env.BRANCH_NAME}'
+							branch: '$BRANCH_NAME'
 					    )
 					}
-					echo " =========== Выкачана ветка ${env.BRANCH_NAME} репозитория php"					
+					echo " -------------========== Выкачана ветка  $BRANCH_NAME репозитория php =============--------------"					
 				}
             }
         }
         stage("Restart nginx") {
             steps {
-				dir ('infra') {
-					ansiblePlaybook(
-						playbook: 'ansible/add_context.yaml',
-						inventory: 'ansible/inventory/hosts',
-						extras: '-e "target=nginx branch=master"'
-					)
+				script {
+					echo "-------------========== Запускается роль установки на сервер =============--------------"
+					dir ('infra') {
+						ansiblePlaybook(
+							playbook: 'ansible/add_context.yaml',
+							inventory: 'ansible/inventory/hosts',
+							extras: '-e "target=nginx branch=master"'
+						)
+					}
 				}
 			}
         }
     }
+	post {
+		failure {
+			echo "-------------========== Шеф, все пропало =============--------------"
+		}
+		aborted {
+			echo "-------------========== Задача прервана =============--------------"
+		}
+		success {
+			echo "-------------========== Готово: http://2bcrm.ru/$BRANCH_NAME =============--------------"
+		}
+	}
 }
