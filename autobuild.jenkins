@@ -16,6 +16,7 @@ pipeline {
         stage("Pull repositories") {
             steps {
 				script {
+					echo "/n Branch Name: $BRANCH_NAME /n"
 					dir ('infra') {
 						git(
 						    url: 'git@github.com:kxxb-stage/infra.git',
