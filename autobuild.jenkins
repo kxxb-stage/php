@@ -45,7 +45,7 @@ pipeline {
 						ansiblePlaybook(
 							playbook: 'ansible/add_context.yaml',
 							inventory: 'ansible/inventory/hosts',
-							extras: '-e "target=nginx branch=master"'
+							extras: '-e "target=nginx branch=$BRANCH_NAME"'
 						)
 					}
 				}
