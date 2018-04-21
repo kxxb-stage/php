@@ -1,0 +1,50 @@
+#!groovy
+// Update nginx config on preprod
+properties([disableConcurrentBuilds()])
+
+pipeline {
+    agent { label 'master' }
+	options {
+		buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
+	}
+    stages {
+		stage("Preparations") {
+			steps {
+				deleteDir() /* clean up our workspace */
+			}
+		}
+        stage("Pull repositories") {
+            steps {
+				script {
+					dir ('infra') {
+						git(
+						    url: 'git@github.com:kxxb-stage/infra.git',
+							credentialsId: 'kxxb_git',
+							branch: 'master'
+						)
+					}
+					echo " =========== Выкачана ветка master репозитория infra"		
+					dir ('infra/ansible/roles/Add_context/files/php') {
+						git(
+						    url: 'git@github.com:kxxb-stage/php.git',
+							credentialsId: 'kxxb_git',
+							branch: '${env.BRANCH_NAME}'
+					    )
+					}
+					echo " =========== Выкачана ветка ${env.BRANCH_NAME} репозитория php"					
+				}
+            }
+        }
+        stage("Restart nginx") {
+            steps {
+				dir ('infra') {
+					ansiblePlaybook(
+						playbook: 'ansible/add_context.yaml',
+						inventory: 'ansible/inventory/hosts',
+						extras: '-e "target=nginx branch=master"'
+					)
+				}
+			}
+        }
+    }
+}
