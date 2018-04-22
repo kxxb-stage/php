@@ -1,3 +1,3 @@
 <?php
 
-echo "Привет, Семаев и Мир!";
+echo "Dev branch!";
