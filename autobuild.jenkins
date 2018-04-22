@@ -43,7 +43,7 @@ pipeline {
 					echo "-------------========== Запускается роль установки на сервер =============--------------"
 					dir ('infra') {
 						ansiblePlaybook(
-							playbook: 'ansible/nginx_add_subdomain.yaml',
+							playbook: 'ansible/nginx_add_domain.yaml',
 							inventory: 'ansible/inventory/hosts',
 							extras: '-e "target=nginx branch=$BRANCH_NAME"'
 						)
