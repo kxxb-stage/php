@@ -26,7 +26,7 @@ pipeline {
 						)
 					}
 					echo " -------------========== Выкачана ветка master репозитория infra =============--------------"		
-					dir ('infra/ansible/roles/nginx_add_domain/files/php') {
+					dir ('infra/ansible/roles/Nginx_add_domain/files/php') {
 						git(
 						    url: 'git@github.com:kxxb-stage/php.git',
 							credentialsId: 'kxxb_git',
